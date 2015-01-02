@@ -2,13 +2,17 @@ module Main where
 
 import Reactive.Denotational
 import Prelude hiding (zip)
+import Control.Arrow
 
 promisedF :: Time -> Char -> Events Char
-promisedF (Time t) c = Events [(Time $ t + 4, c)]
+promisedF (Time t) c = Events [(Time $ t + 2, c), (Time $ t + 4, c)]
 
 zipped :: Events Char -> Events Char -> Events Char
 zipped s1 s2 = mergeTimeMap f $ zip s1 s2
   where f (Time t) (a, b)  = Events [(Time t, a), (Time $ t + 1, b)]
+
+fromEvents' :: Events a -> [(Integer, a)]
+fromEvents' = map (first unTime) . fromEvents
 
 zipExample :: Events Char -> Events Char -> IO ()
 zipExample s1 s2 = do
@@ -16,8 +20,10 @@ zipExample s1 s2 = do
   putStrLn $ "s1    = " ++ pprEventsChar s1
   putStrLn $ "s2    = " ++ pprEventsChar s2
   putStrLn $ "zip   = " ++ pprEventsChar z
-  putStrLn $ "      = " ++ pprEventsChar (concatTimeMap promisedF z)
+  putStrLn $ "      = " ++ pprEventsChar r
+  putStrLn $ "      = " ++ show (fromEvents' r)
   where z = zipped s1 s2
+        r = concatTimeMap promisedF z
 
 mergeExample :: Events Char -> Events Char -> IO ()
 mergeExample s1 s2 = do
@@ -25,15 +31,19 @@ mergeExample s1 s2 = do
   putStrLn $ "s1    = " ++ pprEventsChar s1
   putStrLn $ "s2    = " ++ pprEventsChar s2
   putStrLn $ "merge = " ++ pprEventsChar m
-  putStrLn $ "      = " ++ pprEventsChar (concatTimeMap promisedF m)
+  putStrLn $ "      = " ++ pprEventsChar r
+  putStrLn $ "      = " ++ show (fromEvents' r)
   where m = merge s1 s2
+        r = concatTimeMap promisedF m
 
 fairExample :: Events Char -> Events Char -> IO ()
 fairExample s1 s2 = do
   putStrLn "fairScheduler"
   putStrLn $ "s1    = " ++ pprEventsChar s1
   putStrLn $ "s2    = " ++ pprEventsChar s2
-  putStrLn $ "fair  = " ++ pprEventsChar (fairScheduler promisedF s1 s2)
+  putStrLn $ "fair  = " ++ pprEventsChar r
+  putStrLn $ "      = " ++ show (fromEvents' r)
+  where r = fairScheduler promisedF s1 s2
 
 fairScheduler :: (Time -> a -> Events b) -> Events a -> Events a -> Events b
 fairScheduler f (Events xs) (Events ys) = Events $ impl (Time 0) 0 0 xs ys

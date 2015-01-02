@@ -1,0 +1,48 @@
+name:                denotational-frp
+version:             0.0.0.1
+synopsis:            Denotational semantics for discrete-time FRP
+homepage:            https://github.com/phadej/denotational-frp
+license:             MIT
+license-file:        LICENSE
+author:              Oleg Grenrus
+maintainer:          oleg.grenrus@iki.fi
+copyright:           Copyright (c) 2015 Oleg Grenrus
+category:            Reactive
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+description:         Denotational semantics for discrete-time FRP
+
+library
+  exposed-modules:
+    Reactive.Denotational
+    Reactive.Denotational.Time
+    Reactive.Denotational.Events
+  hs-source-dirs:      src/
+  ghc-options:         -Wall
+  default-language:    Haskell2010
+  build-depends:
+    base >=4.7 && <4.8,
+    QuickCheck >= 2.7 && <2.8
+
+test-suite test
+  default-language:    Haskell2010
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      tests
+  main-is:             Tests.hs
+  ghc-options:         -Wall
+  build-depends:
+    base >=4.5 && <5,
+    tasty >= 0.10,
+    tasty-quickcheck >= 0.8,
+    QuickCheck >= 2.7 && <2.8,
+    denotational-frp
+
+executable example
+  default-language:    Haskell2010
+  hs-source-dirs:      example
+  main-is:             Main.hs
+  ghc-options:         -Wall
+  build-depends:
+    base >=4.5 && <5,
+    denotational-frp
